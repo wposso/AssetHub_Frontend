@@ -62,7 +62,7 @@ class _MainScreenState extends State<MainScreen> {
       appBar: AppBar(
         title: Row(
           children: [
-            Image.asset('Logo-Logser.png', height: 50, fit: BoxFit.contain),
+            // Image.asset('Logo-Logser.png', height: 50, fit: BoxFit.contain),
             const SizedBox(width: 16),
             const Text(
               'Sistema de Gestión de Inventario',
@@ -111,11 +111,11 @@ class _MainScreenState extends State<MainScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.network(
-                      'https://logyser.com/wp-content/uploads/2024/09/Logo-Logser.png',
-                      height: 50,
-                      fit: BoxFit.contain,
-                    ),
+                    // Image.network(
+                    //   'https://logyser.com/wp-content/uploads/2024/09/Logo-Logser.png',
+                    //   height: 50,
+                    //   fit: BoxFit.contain,
+                    // ),
                     const SizedBox(height: 8),
                     const Text(
                       'Apoyo Logistico y Operativo',
