@@ -1,52 +1,25 @@
-# Dockerfile para Flutter Web en Cloud Run
-FROM ubuntu:22.04 as build-stage
+FROM cirrusci/flutter:stable as build
 
-# Instalar dependencias necesarias
-RUN apt-get update && apt-get install -y \
-    curl \
-    git \
-    unzip \
-    xz-utils \
-    zip \
-    libglu1-mesa \
-    && rm -rf /var/lib/apt/lists/*
-
-# Descargar e instalar Flutter
-RUN git clone https://github.com/flutter/flutter.git -b stable --depth 1 /usr/local/flutter
-
-# Configurar environment variables
-ENV PATH="/usr/local/flutter/bin:/usr/local/flutter/bin/cache/dart-sdk/bin:${PATH}"
-ENV FLUTTER_HOME="/usr/local/flutter"
-
-# Verificar instalación y habilitar web
-RUN flutter --version
-RUN flutter config --enable-web
-RUN flutter doctor
-
-# Crear directorio de trabajo
+# Definir el directorio de trabajo
 WORKDIR /app
 
-# Copiar pubspec primero para cachear dependencias
-COPY pubspec.yaml ./
+# Copiar pubspec y resolver dependencias
+COPY pubspec.* ./
 RUN flutter pub get
 
-# Copiar el resto del código
+# Copiar el resto del proyecto
 COPY . .
 
-# Compilar para web
-RUN flutter build web --release --no-tree-shake-icons --web-renderer html
+# Construir para web (solo necesitas web en Cloud Run)
+RUN flutter build web --release --web-renderer html --no-tree-shake-icons
 
-# Fase de producción
-FROM nginx:alpine as production-stage
+# Imagen final con un servidor web ligero
+FROM nginx:alpine
 
-# Copiar los archivos compilados de Flutter
-COPY --from=build-stage /app/build/web /usr/share/nginx/html
+# Copiar el build generado al directorio de Nginx
+COPY --from=build /app/build/web /usr/share/nginx/html
 
-# Configurar Nginx para SPA
-COPY nginx.conf /etc/nginx/nginx.conf
-
-# Exponer puerto
+# Exponer puerto 8080 (Cloud Run usa 8080 por defecto)
 EXPOSE 8080
 
-# Iniciar Nginx
 CMD ["nginx", "-g", "daemon off;"]
