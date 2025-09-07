@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
     libglu1-mesa \
     && rm -rf /var/lib/apt/lists/*
 
-# Descargar e instalar Flutter
+# Descargar e instalar Flutter (versión específica más reciente)
 RUN git clone https://github.com/flutter/flutter.git -b stable --depth 1 /usr/local/flutter
 
 # Configurar environment variables
@@ -25,17 +25,12 @@ RUN flutter config --enable-web
 # Crear directorio de trabajo
 WORKDIR /app
 
-# Copiar pubspec primero para cache de dependencias
-COPY pubspec.yaml pubspec.lock ./
-
-# Obtener dependencias
-RUN flutter pub get
-
-# Copiar el resto del código
+# Copiar TODO el código
 COPY . .
 
-# Compilar para web
-RUN flutter build web --release --no-tree-shake-icons --web-renderer html
+# Obtener dependencias y compilar para web (SIN --web-renderer)
+RUN flutter pub get
+RUN flutter build web --release --no-tree-shake-icons
 
 # Fase de producción
 FROM nginx:alpine as production-stage
@@ -43,7 +38,7 @@ FROM nginx:alpine as production-stage
 # Copiar los archivos compilados de Flutter
 COPY --from=build-stage /app/build/web /usr/share/nginx/html
 
-# Configurar Nginx para SPA (Single Page Application)
+# Configurar Nginx para SPA
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # Exponer puerto
