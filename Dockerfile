@@ -1,35 +1,32 @@
-# Imagen base de Flutter estable
+# Etapa 1: Construcción
 FROM cirrusci/flutter:stable AS build
 
 # Establecer directorio de trabajo
 WORKDIR /app
 
-# Copiar solo pubspec primero para aprovechar la cache de dependencias
-COPY pubspec.yaml pubspec.lock ./
+# Copiar pubspec y pubspec.lock para aprovechar la cache de dependencias
+COPY pubspec.* ./
 
 # Descargar dependencias
 RUN flutter pub get
 
-# Copiar el resto del proyecto
+# Copiar el resto del código
 COPY . .
 
-# Construir la aplicación web en modo release
+# Compilar la app web en modo release
 RUN flutter build web --release --no-tree-shake-icons
 
-# ---- Etapa de servidor web ----
-FROM nginx:alpine
+# Etapa 2: Servidor web con Nginx
+FROM nginx:stable-alpine
 
-# Eliminar configuración por defecto de Nginx
+# Eliminar configuración por defecto
 RUN rm -rf /usr/share/nginx/html/*
 
-# Copiar la build de Flutter al contenedor de Nginx
+# Copiar los archivos compilados de Flutter al contenedor final
 COPY --from=build /app/build/web /usr/share/nginx/html
 
-# Exponer puerto 8080 (Cloud Run usa 8080 por defecto)
+# Exponer puerto
 EXPOSE 8080
 
-# Reemplazar configuración de Nginx para usar el puerto 8080
-RUN sed -i 's/listen       80;/listen       8080;/g' /etc/nginx/conf.d/default.conf
-
-# Comando de arranque
+# Ejecutar Nginx en primer plano
 CMD ["nginx", "-g", "daemon off;"]
