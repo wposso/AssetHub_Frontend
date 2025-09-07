@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:toastification/toastification.dart';
 
 void main() {
   runApp(const LogyserApp());
@@ -88,6 +89,19 @@ class _MainScreenState extends State<MainScreen> {
                 fontSize: isMobile ? 16 : 18,
               ),
             ),
+            SizedBox(
+              width: 10,
+            ),
+            ElevatedButton(
+                onPressed: () {
+                  toastification.show(
+                      style: ToastificationStyle.flat,
+                      type: ToastificationType.success,
+                      autoCloseDuration: Duration(seconds: 4),
+                      title: Text('Success'),
+                      description: Text('Las notificaciones estan activas'));
+                },
+                child: Text('Notificación'))
           ],
         ),
         actions: isMobile
