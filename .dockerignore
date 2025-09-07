@@ -1,0 +1,16 @@
+# .dockerignore
+.git
+.gitignore
+README.md
+.dockerignore
+.cloudbuild.yaml
+.DS_Store
+*.iml
+.idea/
+.packages
+.pub-cache/
+.pub/
+/build/
+/android/
+/ios/
+/lib/generated_plugin_registrant.dart
